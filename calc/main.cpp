@@ -5,52 +5,56 @@
 #include <cmath>
 #include <vector>
 
-#define vd vector<double> 
+#define vd double> 
 
 using namespace std;
 extern "C"{
 
-    struct TD {
-        vector<double> xRoboPos;
-        vector<double> yRoboPos;
+    struct Data {
+        int size;
+
+        double* xRoboPos;
+        double* yRoboPos;
         
-        vector<double>xBolaPos;
-        vector<double>yBolaPos;
+        double* xBolaPos;
+        double* yBolaPos;
 
-        vector<double>tempo;
+        double* tempo;
+        //double>velBola; aplicar depois
+        //double>velRobo; aplicar depois
 
-        //vector<double>velBola; aplicar depois
-        //vector<double>velRobo; aplicar depois
-
-        //vector<double>AceleracaoRobo; Aplicar depois
-        //vector<double>AceleracaoBola; Aplicar depois
+        //double>AceleracaoRobo; Aplicar depois
+        //double>AceleracaoBola; Aplicar depois
 
     };
-
     /*
     // teste
-
-    */
-    TD calculo(double xRoboInit, double yRoboInit, double vel);
+    Data* calculo(double xRoboInit, double yRoboInit, double vel);
     int main(){
-        TD result = calculo(1.01, 5, 0.056);
+        Data* result = calculo(1.01, 5, 0.056);
         
-        for(int i = 0; i < result.xRoboPos.size(); i++){
-            cout << "BOLA: " << result.xBolaPos[i] << " " << result.yBolaPos[i] << " Robo: " << result.xRoboPos[i] << " " << result.yRoboPos[i] << " Tempo: " << result.tempo[i]<< endl;
+        for(int i = 0; i < result->size; i++){
+            cout << "BOLA: " << result->xBolaPos[i] << " " << result->yBolaPos[i] << " Robo: " << result->xRoboPos[i] << " " << result->yRoboPos[i] << " Tempo: " << result->tempo[i]<< endl;
         }
     }
+    */
 
-    TD calculo(double xRoboInit, double yRoboInit, double vel){
-        TD result; 
+    Data* calculo(double xRoboInit, double yRoboInit, double vel){
+        vector<double> xRoboPos;
+        vector<double> yRoboPos;
+        vector<double> xBolaPos;
+        vector<double> yBolaPos;
+        vector<double> vTempo;
 
-        result.xRoboPos.push_back(xRoboInit);
-        result.yRoboPos.push_back(yRoboInit);
+        xRoboPos.push_back(xRoboInit);
+        yRoboPos.push_back(yRoboInit);
 
 
         ifstream arq("trajetoria.txt");
         string linha;
 
 
+        int pos = 0;
         if (arq.is_open()) {
             double tBola, xBola, yBola;
 
@@ -58,9 +62,9 @@ extern "C"{
             getline(arq, linha);
             istringstream iss(linha);
             if (iss >> tBola >> xBola >> yBola) {
-                result.xBolaPos.push_back(xBola);
-                result.yBolaPos.push_back(yBola);
-                result.tempo.push_back(tBola);        
+                xBolaPos.push_back(xBola);
+                yBolaPos.push_back(yBola);
+                vTempo.push_back(tBola);        
             }
         
             double distancia = sqrt(pow(xRoboInit - xBola, 2) + pow(yRoboInit - yBola, 2));
@@ -68,7 +72,6 @@ extern "C"{
             if(distancia > 0.115){
 
                 // Variáveis de Posição;
-                int pos = 0;
                 double xRobo, yRobo, tempo;
 
                 // Laço de Repetição que lê linha do trajetoria.txt a cada repetição
@@ -81,8 +84,8 @@ extern "C"{
                         double novoX, novoY;
 
                         // Posição Atual do Robo;
-                        xRobo = result.xRoboPos[pos];
-                        yRobo = result.yRoboPos[pos];
+                        xRobo = xRoboPos[pos];
+                        yRobo = yRoboPos[pos];
 
                         // Calculo de Catetos e do angulo theta:
                         if( (xRobo > xBola && yRobo > yBola) || (xRobo < xBola && yRobo > yBola) ){
@@ -146,13 +149,13 @@ extern "C"{
                         }
 
                         // Salvando Valores do Robo e Bola no Vector
-                        result.xRoboPos.push_back(novoX);
-                        result.yRoboPos.push_back(novoY);
-                        result.xBolaPos.push_back(xBola);
-                        result.yBolaPos.push_back(yBola);
-                        result.tempo.push_back(tempo);
+                        xRoboPos.push_back(novoX);
+                        yRoboPos.push_back(novoY);
+                        xBolaPos.push_back(xBola);
+                        yBolaPos.push_back(yBola);
+                        vTempo.push_back(tempo);
 
-                        distancia = sqrt(pow(novoX - result.xBolaPos[pos + 1], 2) + pow(novoY - result.yBolaPos[pos + 1], 2));
+                        distancia = sqrt(pow(novoX - xBolaPos[pos + 1], 2) + pow(novoY - yBolaPos[pos + 1], 2));
                         if(distancia <= 0.1115){
                             break;
                         }    
@@ -165,11 +168,36 @@ extern "C"{
             }
             arq.close();
         }
-        return result;
+        Data res;
+
+        Data* data = new Data();
+        data->size = pos + 2;
+
+        data->xBolaPos = new double[data->size + 2];
+        data->yBolaPos = new double[data->size + 2];
+        data->xRoboPos = new double[data->size + 2];
+        data->yRoboPos = new double[data->size + 2];
+        data->tempo = new double[data->size + 2];
+
+
+
+        for(int i = 0; i < pos + 2; i++){
+            data->xBolaPos[i] = xBolaPos[i];
+            data->yBolaPos[i] = yBolaPos[i];
+            data->xRoboPos[i] = xRoboPos[i];
+            data->yRoboPos[i] = yRoboPos[i];
+            data->tempo[i] = vTempo[i];
+        }
+        return data;
     }
 
 }
 
-
-
-
+extern "C" void free_data(Data* data) {
+    delete[] data->xBolaPos;
+    delete[] data->yBolaPos;
+    delete[] data->xRoboPos;
+    delete[] data->yRoboPos;
+    delete[] data->tempo; 
+    delete data;
+}

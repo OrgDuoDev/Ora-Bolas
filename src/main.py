@@ -1,13 +1,32 @@
 import ctypes
 
-class TD(ctypes.Structure):
-    _fields_ = [("xRobo", ctypes.c_double),
-                ("yRobo", ctypes.c_double)]
+# Definir a estrutura Data em Python usando ctypes
+class Data(ctypes.Structure):
+    _fields_ = [
+        ("size", ctypes.c_int),
+        ("xRoboPos", ctypes.POINTER(ctypes.c_double)),
+        ("yRoboPos", ctypes.POINTER(ctypes.c_double)),
+        ("xBolaPos", ctypes.POINTER(ctypes.c_double)),
+        ("yBolaPos", ctypes.POINTER(ctypes.c_double)),
+        ("tempo", ctypes.POINTER(ctypes.c_double))
+    ]
 
-lib = ctypes.CDLL("../calc/calc.so")
+# Carregar a biblioteca compartilhada
+calculo_lib = ctypes.CDLL('./calculo.so')
 
-lib.calculo.restype = TD
-lib.calculo.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double]
-result = lib.calculo(5, 5, 5, 4, 0.056)
+# Definir a assinatura da função
+calculo_lib.calculo.restype = ctypes.POINTER(Data)
+calculo_lib.calculo.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double]
 
-print(result.xRobo, result.yRobo)
+# Chamar a função
+result_ptr = calculo_lib.calculo(4, -2, 0.056)
+
+# Obter os dados
+result = result_ptr.contents
+
+# Imprimir os resultados
+for i in range(result.size):
+    print(f"BOLA: {result.xBolaPos[i]} {result.yBolaPos[i]} Robo: {result.xRoboPos[i]} {result.yRoboPos[i]} Tempo: {result.tempo[i]}")
+
+# Liberar a memória alocada pela função C++
+calculo_lib.free_data(result_ptr)
