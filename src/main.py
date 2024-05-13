@@ -1,32 +1,31 @@
-import ctypes
+import matplotlib.pyplot as plt
+from calc import Cport
+from plot import XYroboBola, trajetoriaX, trajetoriaY
 
-# Definir a estrutura Data em Python usando ctypes
-class Data(ctypes.Structure):
-    _fields_ = [
-        ("size", ctypes.c_int),
-        ("xRoboPos", ctypes.POINTER(ctypes.c_double)),
-        ("yRoboPos", ctypes.POINTER(ctypes.c_double)),
-        ("xBolaPos", ctypes.POINTER(ctypes.c_double)),
-        ("yBolaPos", ctypes.POINTER(ctypes.c_double)),
-        ("tempo", ctypes.POINTER(ctypes.c_double))
-    ]
+def main():
+    # Chamar a função Cport
+    posX = input("Posição em X: ")
+    posY = input("Posição em Y: ")
 
-# Carregar a biblioteca compartilhada
-calculo_lib = ctypes.CDLL('./calculo.so')
+    
+    result = Cport(posX, posY)
+    
+    # Armazenar os resultados em listas
+    xBolaPos_list = [result.xBolaPos[i] for i in range(result.size)]
+    yBolaPos_list = [result.yBolaPos[i] for i in range(result.size)]
+    xRoboPos_list = [result.xRoboPos[i] for i in range(result.size)]
+    yRoboPos_list = [result.yRoboPos[i] for i in range(result.size)]
+    tempo_list = [result.tempo[i] for i in range(result.size)]
 
-# Definir a assinatura da função
-calculo_lib.calculo.restype = ctypes.POINTER(Data)
-calculo_lib.calculo.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double]
+    #Aplicar o estilo dark mode
+    plt.style.use('Solarize_Light2')
 
-# Chamar a função
-result_ptr = calculo_lib.calculo(4, -2, 0.056)
+    # Criação dos gŕaficos:
+    XYroboBola(xBolaPos_list, yBolaPos_list, xRoboPos_list, yRoboPos_list)
+    trajetoriaX(xBolaPos_list, xRoboPos_list, tempo_list)
+    trajetoriaY(yBolaPos_list, yRoboPos_list, tempo_list)
 
-# Obter os dados
-result = result_ptr.contents
+    plt.show()
 
-# Imprimir os resultados
-for i in range(result.size):
-    print(f"BOLA: {result.xBolaPos[i]} {result.yBolaPos[i]} Robo: {result.xRoboPos[i]} {result.yRoboPos[i]} Tempo: {result.tempo[i]}")
-
-# Liberar a memória alocada pela função C++
-calculo_lib.free_data(result_ptr)
+if __name__ == "__main__":
+    main()
