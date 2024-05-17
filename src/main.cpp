@@ -218,7 +218,7 @@ extern "C" {
                         // Verifica a Distãncia entre o Robo e a Bola
                         distancia = sqrt(pow(novoX - xBolaPos[pos + 1], 2) + pow(novoY - yBolaPos[pos + 1], 2));
                         if(distancia < 0.1115){
-                            
+                            /*
                             double parametro = (sqrt(2) / 2) * 0.1115;
                             if(novoX >= xBolaPos[pos + 1]  && novoY >= yBolaPos[pos + 1]){ // Primeiro Quadrante
                                 
@@ -267,12 +267,7 @@ extern "C" {
                                 novoX = xBolaPos[pos + 1] + qX; 
                                 novoY = yBolaPos[pos + 1] - qY; 
                             }
-
-
-
-
-
-
+                            */
 
                             distancia = sqrt(pow(novoX - xBolaPos[pos + 1], 2) + pow(novoY - yBolaPos[pos + 1], 2)); 
                             podeDarBreak = 1;
@@ -307,7 +302,6 @@ extern "C" {
                 }
             }
             arq.close();
-
 
             // Cria um novo Data com o tamanho já definido
             data->size = vTempo.size(); // Utilizado o x do Robo para tamanho por ser o vector mais seguro
