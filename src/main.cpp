@@ -4,6 +4,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
 extern "C" {
@@ -16,6 +17,9 @@ extern "C" {
 
         double* xRoboVelo;
         double* yRoboVelo;
+
+        double* xRoboAcele;
+        double* yRoboAcele;
         
         double* xBolaPos;
         double* yBolaPos;
@@ -23,20 +27,31 @@ extern "C" {
         double* xBolaVelo;
         double* yBolaVelo;
 
+        double* xBolaAcele;
+        double* yBolaAcele;
+
         double* dist;
         double* tempo;
     };
 
-    /*
+    
     Data* calculo(double xRoboInit, double yRoboInit, double vel);
     int main(){
-        Data* result = calculo(5, 5, 0.056);
-        
+        Data* result = calculo(1.5, 1, 0.056);
+        cout << fixed << setprecision(10);
         for(int i = 0; i < result->size; i++){
-            cout << "BOLA: " << result->xBolaVelo[i] << " " << result->yBolaVelo[i] << " Robo: " <<  result->xRoboVelo[i] << " " << result->yRoboVelo[i] << " Tempo: " << result->tempo[i]<< " Dist: " << result->dist[i] << endl;
+            cout << "BOLA A: " << result->xBolaAcele[i] << " " << result->yBolaAcele[i] << " Robo A: " <<  result->xRoboAcele[i] << " " << result->yRoboAcele[i] << " Tempo: " << result->tempo[i]<< " Dist: " << result->dist[i] << endl;
+        }
+        cout << "-----------------------------" << endl;
+        for(int i = 0; i < result->size; i++){
+           cout << "BOLA V: " << result->xBolaVelo[i] << " " << result->yBolaVelo[i] << " Robo V: " <<  result->xRoboVelo[i] << " " << result->yRoboVelo[i] << " Tempo: " << result->tempo[i]<< " Dist: " << result->dist[i] << endl;
+        }
+        cout << "-----------------------------" << endl;
+        for(int i = 0; i < result->size; i++){
+           cout << "BOLA S: " << result->xBolaPos[i] << " " << result->yBolaPos[i] << " Robo S: " <<  result->xRoboPos[i] << " " << result->yRoboPos[i] << " Tempo: " << result->tempo[i]<< " Dist: " << result->dist[i] << endl;
         }
     }
-    */
+    
     
 
     Data* calculo(double xRoboInit, double yRoboInit, double vel){
@@ -62,6 +77,11 @@ extern "C" {
             vector<double> xBolaVelo; 
             vector<double> yBolaVelo;  
 
+            vector<double> xRoboAcele;
+            vector<double> yRoboAcele;
+            vector<long double> xBolaAcele;
+            vector<double> yBolaAcele;
+
             double distancia;       
             double temp, xBola, yBola;
 
@@ -80,13 +100,24 @@ extern "C" {
                 vDist.push_back(distancia);
 
             }
-
+            // Velocidade inicial = 0
             xRoboVelo.push_back(0);
             yRoboVelo.push_back(0);
             xBolaVelo.push_back(0);
             yBolaVelo.push_back(0);
 
-            if(distancia > 0.115){
+            // Aceleração inicial = 0
+            xRoboAcele.push_back(0);
+            yRoboAcele.push_back(0);
+            xBolaAcele.push_back(0);
+            yBolaAcele.push_back(0);
+
+            xRoboAcele.push_back(0);
+            yRoboAcele.push_back(0);
+            xBolaAcele.push_back(0);
+            yBolaAcele.push_back(0);
+
+            if(distancia > 0.1115){
             
                 while(getline(arq, linha)){
                     int lineValidate = 0;
@@ -99,12 +130,15 @@ extern "C" {
                         vTempo.push_back(temp);  
 
                         // Lê um valor a mais no primeiro loop para permtir que o robo veja posições futuras da bola
-                        if(pos == 0){
-
-                        }
                         // Velocidade da bola a cada momento
-                        xBolaVelo.push_back(abs(xBolaPos[pos + 1] - xBolaPos[pos]) /0.2);
-                        yBolaVelo.push_back(abs(yBolaPos[pos + 1] - yBolaPos[pos]) /0.2);
+                        xBolaVelo.push_back(abs(xBolaPos[pos + 1] - xBolaPos[pos]) / 0.2);
+                        yBolaVelo.push_back(abs(yBolaPos[pos + 1] - yBolaPos[pos]) / 0.2);
+
+                        if(pos > 0){
+                            yBolaAcele.push_back((yBolaVelo[pos + 1] - yBolaVelo[pos]) / 0.2);
+                            xBolaAcele.push_back((xBolaVelo[pos + 1] - xBolaVelo[pos]) / 0.2);
+                        }
+                        
 
                         lineValidate = 1;      
                     }
@@ -180,6 +214,70 @@ extern "C" {
                                 novoY = yRobo + dy;
                             }
                         }
+                        int podeDarBreak = 0;
+                        // Verifica a Distãncia entre o Robo e a Bola
+                        distancia = sqrt(pow(novoX - xBolaPos[pos + 1], 2) + pow(novoY - yBolaPos[pos + 1], 2));
+                        if(distancia < 0.1115){
+                            
+                            double parametro = (sqrt(2) / 2) * 0.1115;
+                            if(novoX >= xBolaPos[pos + 1]  && novoY >= yBolaPos[pos + 1]){ // Primeiro Quadrante
+                                
+                                CA = abs(novoX - xBolaPos[pos + 1]);
+                                CO = abs(novoY - yBolaPos[pos + 1]);
+                                theta = atan2(CO, CA);
+                                
+                                double pX = abs(sin(theta) * 0.1115);
+                                double pY = abs(cos(theta) * 0.1115);
+                                
+                                novoX = xBolaPos[pos + 1] + pX; 
+                                novoY = yBolaPos[pos + 1] + pY;             
+                            }
+                            else if(novoX < xBolaPos[pos + 1]  && novoY > yBolaPos[pos + 1]){ // Segundo Quadrante
+                                
+                                CA = abs(novoX - xBolaPos[pos + 1]);
+                                CO = abs(novoY - yBolaPos[pos + 1]);
+                                theta = atan2(CO, CA);
+                                
+                                double sX = abs(sin(theta) * 0.1115);
+                                double sY = abs(cos(theta) * 0.1115);
+                               
+                                novoX = xBolaPos[pos + 1] - sX; 
+                                novoY = yBolaPos[pos + 1] + sY;      
+                            }
+                            else if(novoX <= xBolaPos[pos + 1]  && novoY <= yBolaPos[pos + 1]){ // Terceiro Quadrante
+                                
+                                CA = abs(novoY - yBolaPos[pos + 1]);
+                                CO = abs(novoX - xBolaPos[pos + 1]);
+                                theta = atan2(CO, CA);
+                                
+                                double tX = abs(sin(theta) * 0.1115);
+                                double tY = abs(cos(theta) * 0.1115);
+                                
+                                novoX = xBolaPos[pos + 1] - tX; 
+                                novoY = yBolaPos[pos + 1] - tY; 
+                            }
+                            else{ // Quarto Quadrante:
+                                CA = abs(novoY - yBolaPos[pos + 1]);
+                                CO = abs(novoX - xBolaPos[pos + 1]);
+                                theta = atan2(CO, CA);
+
+                                double qX = abs(sin(theta) * 0.1115);
+                                double qY = abs(cos(theta) * 0.1115);
+                                
+                                novoX = xBolaPos[pos + 1] + qX; 
+                                novoY = yBolaPos[pos + 1] - qY; 
+                            }
+
+
+
+
+
+
+
+                            distancia = sqrt(pow(novoX - xBolaPos[pos + 1], 2) + pow(novoY - yBolaPos[pos + 1], 2)); 
+                            podeDarBreak = 1;
+                            //break;
+                        }    
                         // Adiciona as novas posições do Robo
                         xRoboPos.push_back(novoX);
                         yRoboPos.push_back(novoY);
@@ -188,12 +286,18 @@ extern "C" {
                         xRoboVelo.push_back(abs(xRoboPos[pos + 1] - xRoboPos[pos]) /0.2);
                         yRoboVelo.push_back(abs(yRoboPos[pos + 1] - yRoboPos[pos]) /0.2);
 
-                        // Verifica a Distãncia entre o Robo e a Bola
-                        distancia = sqrt(pow(novoX - xBolaPos[pos + 1], 2) + pow(novoY - yBolaPos[pos + 1], 2));
+                        if(pos > 0){
+                            xRoboAcele.push_back((xRoboVelo[pos + 1] - xRoboVelo[pos]) /0.2);
+                            yRoboAcele.push_back((yRoboVelo[pos + 1] - yRoboVelo[pos]) /0.2);
+                        }
+
+                        // Salva a distancia
                         vDist.push_back(distancia);
-                        if(distancia <= 0.1115){
+
+                        if(podeDarBreak){
                             break;
-                        }    
+                        }
+
                     }
                     else{
                         cout << "Erro Ao Ler Arquivo!\n";
@@ -206,7 +310,7 @@ extern "C" {
 
 
             // Cria um novo Data com o tamanho já definido
-            data->size = xRoboPos.size(); // Utilizado o x do Robo para tamanho por ser o vector mais seguro
+            data->size = vTempo.size(); // Utilizado o x do Robo para tamanho por ser o vector mais seguro
             data->xBolaPos = new double[data->size];
             data->yBolaPos = new double[data->size];
             data->xRoboPos = new double[data->size];
@@ -216,6 +320,11 @@ extern "C" {
             data->yBolaVelo = new double[data->size];
             data->xRoboVelo = new double[data->size];
             data->yRoboVelo = new double[data->size];
+
+            data->xBolaAcele = new double[data->size];
+            data->yBolaAcele = new double[data->size];
+            data->xRoboAcele = new double[data->size];
+            data->yRoboAcele = new double[data->size];
 
             data->tempo = new double[data->size];
             data->dist = new double[data->size];
@@ -231,6 +340,11 @@ extern "C" {
                 data->yBolaVelo[i] = yBolaVelo[i];
                 data->xRoboVelo[i] = xRoboVelo[i];
                 data->yRoboVelo[i] = yRoboVelo[i];
+
+                data->xBolaAcele[i] = xBolaAcele[i];
+                data->yBolaAcele[i] = yBolaAcele[i];
+                data->xRoboAcele[i] = xRoboAcele[i];
+                data->yRoboAcele[i] = yRoboAcele[i];
 
                 data->tempo[i] = vTempo[i];
                 data->dist[i] = vDist[i];

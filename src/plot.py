@@ -62,8 +62,7 @@ def velocidadeX(xBolaVelo, xRoboVelo, tempo):
     plt.title('Velocidade da Bola e do Robô')
     plt.legend()
     plt.grid(True)
-    plt.ylim(0, 0.4)
-
+    
 def velocidadeY(yBolaVelo, yRoboVelo, tempo):
     # Criar o gráfico
     plt.figure(num="Velocidade em Y dos objetos em função do tempo")
@@ -75,4 +74,26 @@ def velocidadeY(yBolaVelo, yRoboVelo, tempo):
     plt.legend()
     plt.grid(True)
     plt.ylim(0, 0.4)
+
+def aceleracaoX(xBolaAcele, xRoboAcele, tempo):
+    # Criar o gráfico
+    plt.figure(num="Aceleração em X dos objetos em função do tempo ")
+    plt.plot(tempo, xBolaAcele, label='Bola',  color="red")
+    plt.plot(tempo, xRoboAcele, label='Robo')
+    plt.xlabel('tempo')
+    plt.ylabel('x')
+    plt.title('Aceleração da Bola e do Robô')
+    plt.legend()
+    plt.grid(True)
+
+def aceleracaoY(yBolaAcele, yRoboAcele, tempo):
+    # Criar o gráfico
+    plt.figure(num="Aceleração em Y dos objetos em função do tempo")
+    plt.plot(tempo, yBolaAcele, label='Bola',  color="red")
+    plt.plot(tempo, yRoboAcele, label='Robo')
+    plt.xlabel('tempo')
+    plt.ylabel('y')
+    plt.title('Aceleração da Bola e do Robô')
+    plt.legend()
+    plt.grid(True)
 

@@ -10,15 +10,21 @@ def Cport(posX, posY):
             
             ("xRoboVelo", ctypes.POINTER(ctypes.c_double)),
             ("yRoboVelo", ctypes.POINTER(ctypes.c_double)),
+
+            ("xRoboAcele", ctypes.POINTER(ctypes.c_double)),
+            ("yRoboAcele", ctypes.POINTER(ctypes.c_double)),
             
             ("xBolaPos", ctypes.POINTER(ctypes.c_double)),
             ("yBolaPos", ctypes.POINTER(ctypes.c_double)),
             
             ("xBolaVelo", ctypes.POINTER(ctypes.c_double)),
             ("yBolaVelo", ctypes.POINTER(ctypes.c_double)),
+
+            ("xBolaAcele", ctypes.POINTER(ctypes.c_double)),
+            ("yBolaAcele", ctypes.POINTER(ctypes.c_double)),
             
             ("dist", ctypes.POINTER(ctypes.c_double)),
-            ("tempo", ctypes.POINTER(ctypes.c_double))
+            ("tempo", ctypes.POINTER(ctypes.c_double)),
         ]
 
     calculo_lib = ctypes.CDLL('./calculo.so')
@@ -29,3 +35,5 @@ def Cport(posX, posY):
     result = result_ptr.contents
 
     return result
+
+Cport(5,5)
